@@ -61,7 +61,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         let imageView = UIImageView()
         imageView.layer.cornerRadius    = NotificationSize.imageSize / 2
         imageView.clipsToBounds         = true
-        imageView.contentMode           = .scaleAspectFill
+        imageView.contentMode           = .scaleAspectFit
         return imageView
         
     }()
