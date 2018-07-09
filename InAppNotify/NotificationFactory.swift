@@ -9,7 +9,7 @@
 import UIKit
 
 /// This class design the notification
-open class NotificationFactory: UIView,UITextViewDelegate {
+open class NotificationFactory: UIView, UITextViewDelegate {
     
     /// True if notification is opened in InteractionType.text
     private var openedToReply   : Bool = false
@@ -17,83 +17,70 @@ open class NotificationFactory: UIView,UITextViewDelegate {
     /// The visibility of statusbar before panned for InteractionType.text
     private var preVisibileBar  : Bool = true
 
-    /// The main controller where notification is showed
+    /// The main controller where notification is shown
     private var maincontroller  : UIViewController?
     
     /// Lazy view that represent a background of notitication
     open fileprivate(set) lazy var backgroundView: UIView = {
-        
         let view = UIView()
         view.backgroundColor = InAppNotify.theme.backgroundColor
         view.alpha           = 0.8
         view.clipsToBounds   = true
         return view
-        
     }()
     
     
     /// Lazy view that contain the gesture to dismiss a notification
     open fileprivate(set) lazy var gestureContainer: UIView = {
-        
         let view = UIView()
         view.backgroundColor          = UIColor.clear
         view.isUserInteractionEnabled = true
         return view
-        
     }()
     
     
     /// Lazy view for drag indicator
     open fileprivate(set) lazy var indicatorView: UIView = {
-        
         let view = UIView()
         view.backgroundColor            = InAppNotify.theme.dragIndicatorColor
         view.layer.cornerRadius         = NotificationSize.indicatorHeight / 2
         view.isUserInteractionEnabled   = true
         return view
-        
     }()
     
     
     /// Lazy view for avatar image
     open fileprivate(set) lazy var imageView: UIImageView = {
-        
         let imageView = UIImageView()
         imageView.layer.cornerRadius    = NotificationSize.imageSize / 2
         imageView.clipsToBounds         = true
-        imageView.contentMode           = .scaleAspectFill
+        imageView.contentMode           = .scaleAspectFit
         return imageView
-        
     }()
     
     
     /// Lazy label for title
     open fileprivate(set) lazy var titleLabel: UILabel = {
-        
         let label           = UILabel()
         label.font          = InAppNotify.theme.titleFont
         label.textColor     = InAppNotify.theme.titleColor
         label.numberOfLines = 1
         return label
-        
     }()
     
     
     /// Lazy label for subtitle
     open fileprivate(set) lazy var subtitleLabel: UILabel = {
-        
         let label           = UILabel()
         label.font          = InAppNotify.theme.subtitleFont
         label.textColor     = InAppNotify.theme.subtitleColor
         label.numberOfLines = 1
         return label
-        
     }()
     
     
     /// Lazy button for action
     open fileprivate(set) lazy var buttonSend: UIButton = {
-        
         let button       = UIButton()
         button.isEnabled = false
         
@@ -105,7 +92,6 @@ open class NotificationFactory: UIView,UITextViewDelegate {
     
     /// Lazy text view for action
     open fileprivate(set) lazy var inputText: UITextView = {
-        
         let txf             = UITextView()
         txf.alpha           = 1
         txf.backgroundColor = InAppNotify.theme.inputTextBackgroundColor
@@ -113,7 +99,6 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         txf.isScrollEnabled = true;
         txf.font            = .systemFont(ofSize: 16)
         return txf
-        
     }()
     
     /// Lazy view for line separator
@@ -219,7 +204,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
     }
     
     
-    /// Called when text inside textview change
+    /// Called when text inside textview changes
     ///
     /// - Parameter textView: textView
     open func textViewDidChange(_ textView: UITextView) {
@@ -230,22 +215,21 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         newFrame.size               = CGSize(width: max(newSize.width, fixedWidth), height: (newSize.height > 100) ? 100 : newSize.height)
         textView.frame              = newFrame;
         buttonSend.isEnabled        = textView.text != ""
-        buttonSend.frame.origin.y   = inputText.frame.origin.y+inputText.frame.size.height-buttonSend.frame.size.height
-        let stringLength:Int        = textView.text.characters.count
+        buttonSend.frame.origin.y   = inputText.frame.origin.y + inputText.frame.size.height - buttonSend.frame.size.height
+        let stringLength:Int        = textView.text.count
         
-        textView.scrollRangeToVisible(NSMakeRange(stringLength-1, 0))
-        
+        textView.scrollRangeToVisible(NSMakeRange(stringLength - 1, 0))
     }
     
     
     /// Call when user press send on interaction
     @objc fileprivate func interactionSend(){
-        self.completion?(CallbackType.text,inputText.text!,self.announcement!)
+        self.completion?(CallbackType.text, inputText.text!, self.announcement!)
         hide()
     }
     
     
-    /// Function to build a notitication views for a announcement
+    /// Function to build notification views for a announcement
     ///
     /// - Parameters:
     ///   - announcement: announcement to show
@@ -282,7 +266,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         //Set image if needed
         if(announcement.urlImage != nil && announcement.urlImage! != ""){
             imageView.setImageFromURL(stringImageUrl: announcement.urlImage!)
-        }else{
+        } else {
             imageView.image = announcement.image
         }
         
@@ -291,20 +275,19 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         subtitleLabel.text  = announcement.subtitle ?? ""
         
         //Size all views
-        [titleLabel, subtitleLabel,inputText,buttonSend].forEach {
+        [titleLabel, subtitleLabel, inputText, buttonSend].forEach {
             $0.sizeToFit()
         }
         
         //Adjust offset based on image
         NotificationSize.textOffset = (imageView.image == nil) ? 18 : 65
         
-        //Invalidate e recreate timer
+        //Invalidate and recreate timer
         displayTimer.invalidate()
         displayTimer = Timer.scheduledTimer(timeInterval: announcement.duration,target: self, selector: #selector(self.displayTimerDidFire), userInfo: nil, repeats: false)
         
         //Setup and position views
         setupFramesAndPositionViews(currentWidth: totalWidth, currentHeight: totalHeight)
-        
     }
     
     
@@ -316,7 +299,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         //Test if controller has navigation controller
         if let parentNavigation = controller.navigationController{
             maincontroller = parentNavigation
-        }else{
+        } else {
             //Set this as main controller
             maincontroller = controller
         }
@@ -381,7 +364,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
     
     
     // MARK: - Handling screen orientation
-    
+    // TODO: - Fix for how iTAK handles rotation
     @objc func orientationDidChange() {
         rotated = true
         
@@ -389,9 +372,11 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         let(currentWidth,currentHeight) = getCorrectHeigthAndWidth()
         
         setupFramesAndPositionViews(currentWidth: currentWidth,currentHeight: currentHeight)
+        
         if openedToReply {
             setupTextInteractionFrame(currentWidth: currentWidth,currentHeight: currentHeight)
         }
+        
         rotated = false
     }
     
@@ -403,6 +388,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
     open func hide(_ animate:Bool? = true) {
         
         let dur = (animate!) ? 0.35 : 0
+        
         UIView.animate(withDuration: dur, animations: {
             self.inputText.resignFirstResponder()
             self.frame.size.height = 0
@@ -411,7 +397,8 @@ open class NotificationFactory: UIView,UITextViewDelegate {
             self.completion?(CallbackType.hide, nil,self.announcement!)
             self.displayTimer.invalidate()
             self.removeFromSuperview()
-            if self.interactionType == InteractionType.inputText && self.openedToReply{
+            
+            if self.interactionType == InteractionType.inputText && self.openedToReply {
                 self.openedToReply = false
                 self.maincontroller?.tabBarController?.tabBar.isHidden = self.preVisibileBar
             }
@@ -438,33 +425,36 @@ open class NotificationFactory: UIView,UITextViewDelegate {
     @objc fileprivate func handleTapGestureRecognizer() {
         
         guard let announcement = announcement else { return }
-        if openedToReply == false{
-            announcement.action?(CallbackType.tap,nil,self.announcement!)
-        }else{
+        
+        if openedToReply == false {
+            announcement.action?(CallbackType.tap, nil, self.announcement!)
+        } else {
             inputText.text = ""
         }
-        hide()
         
+        hide()
     }
     
-    
+
     /// Workaround: On ipad the new size do not change inside rotation notification
     ///
     /// - Returns: CGFloat,CGFloat
-    private func getCorrectHeigthAndWidth() -> (CGFloat, CGFloat){
+    private func getCorrectHeigthAndWidth() -> (CGFloat, CGFloat) {
 
         var currentWidth    = totalWidth
         var currentHeight   = totalHeight
-        if rotated && backgroundView.frame.size.width == currentWidth{
+        
+        if rotated && backgroundView.frame.size.width == currentWidth {
             currentWidth = totalHeight
             currentHeight = totalWidth
         }
+        
         return (currentWidth, currentHeight)
         
     }
     
     /// Function used to resize and position views for user interaction
-    private func setupTextInteractionFrame(currentWidth:CGFloat,currentHeight:CGFloat){
+    private func setupTextInteractionFrame(currentWidth:CGFloat,currentHeight:CGFloat) {
         
         //Adjust frame size to all screen
         frame.size.height = currentHeight
@@ -478,7 +468,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         
         //Check if separator exists
         var line:UIView?                        = self.viewWithTag(1000)
-        if line == nil{
+        if line == nil {
             line = lineSeparator
             self.addSubview(line!)
         }
@@ -486,22 +476,22 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         //Set correct frame
         line!.frame = CGRect(
             x: 0,
-            y: max(imageView.frame.origin.y+imageView.frame.size.height,subtitleLabel.frame.origin.y+subtitleLabel.frame.size.height) + 8,
+            y: max(imageView.frame.origin.y + imageView.frame.size.height, subtitleLabel.frame.origin.y + subtitleLabel.frame.size.height) + 8,
             width: currentWidth,
             height: 0.5
         )
         
         //Align elements
         let topy            = line!.frame.origin.y + max(subtitleLabel.frame.size.height, 10)
-        inputText.frame     = CGRect(x: 10, y: topy, width: currentWidth-25-buttonSend.frame.size.width, height: 35)
-        buttonSend.frame    = CGRect(x: inputText.frame.size.width+15, y: topy, width: buttonSend.frame.size.width, height: 35)
+        inputText.frame     = CGRect(x: 10, y: topy, width: currentWidth - 25 - buttonSend.frame.size.width, height: 35)
+        buttonSend.frame    = CGRect(x: inputText.frame.size.width + 15, y: topy, width: buttonSend.frame.size.width, height: 35)
         buttonSend.isHidden = false
         inputText.isHidden  = false
         
         //Show keyboard
         inputText.becomeFirstResponder()
-        
     }
+    
     
     /// Called when user pan up or down on a notification
     @objc fileprivate func handlePanGestureRecognizer() {
@@ -514,27 +504,30 @@ open class NotificationFactory: UIView,UITextViewDelegate {
             if translation.y >= 20 {
                 
                 //Check if notitification has textInteraction enabled
-                if interactionType == InteractionType.inputText{
+                if interactionType == InteractionType.inputText {
                     if(openedToReply){ return }
+                    
                     openedToReply = true
                     setupTextInteractionFrame(currentWidth: totalWidth,currentHeight: totalHeight)
-                    if maincontroller != nil && maincontroller!.tabBarController != nil{
+                    
+                    if maincontroller != nil && maincontroller!.tabBarController != nil {
                         preVisibileBar = maincontroller!.tabBarController!.tabBar.isHidden
                     }
+                    
                     maincontroller?.tabBarController?.tabBar.isHidden = true
                     
-                }else{
+                } else {
                     frame.size.height = NotificationSize.height + 12 + (translation.y) / 25
                 }
-                
             } else {
                 frame.size.height = NotificationSize.height + translation.y
             }
-        } else if (!openedToReply){
+        } else if (!openedToReply) {
                 
                 panGestureActive = false
                 let height = translation.y < -5 || canHide ? 0 : NotificationSize.height
                 duration = 0.2
+            
                 UIView.animate(withDuration: duration, animations: {
                     self.frame.size.height = height
                 }, completion: { _ in if translation.y < -5 {
@@ -542,7 +535,6 @@ open class NotificationFactory: UIView,UITextViewDelegate {
                     self.removeFromSuperview()
                     self.displayTimer.invalidate()
                 }})
-                
         }
         
         //Animate view
