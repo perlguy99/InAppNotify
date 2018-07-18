@@ -9,7 +9,7 @@
 import UIKit
 
 /// This class design the notification
-open class NotificationFactory: UIView,UITextViewDelegate {
+open class NotificationFactory: UIView, UITextViewDelegate {
     
     /// True if notification is opened in InteractionType.text
     private var openedToReply   : Bool = false
@@ -231,7 +231,7 @@ open class NotificationFactory: UIView,UITextViewDelegate {
         textView.frame              = newFrame;
         buttonSend.isEnabled        = textView.text != ""
         buttonSend.frame.origin.y   = inputText.frame.origin.y+inputText.frame.size.height-buttonSend.frame.size.height
-        let stringLength:Int        = textView.text.characters.count
+        let stringLength:Int        = textView.text.count
         
         textView.scrollRangeToVisible(NSMakeRange(stringLength-1, 0))
         

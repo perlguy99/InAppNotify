@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class InAppNotify{
     
@@ -223,7 +224,7 @@ extension UIImageView{
                         self.image = UIImage(data: data)
                     }
                     
-                }catch{
+                } catch {
                 
                 }
             }
